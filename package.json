@@ -1,0 +1,33 @@
+{
+  "name": "imaginativebackend",
+  "version": "1.0.0",
+  "description": "project contain list of users",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "body-parser": "*",
+    "ejs": "^2.5.6",
+    "express": "*",
+    "express-validator": "^3.2.1",
+    "mongoose": "^4.11.5",
+    "multer-gridfs-storage": "^1.2.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AtouiIlyes/ExpressProject.git"
+  },
+  "keywords": [
+    "node",
+    "express",
+    "restfull_api",
+    "mongoDB\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[M"
+  ],
+  "author": "atoui",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AtouiIlyes/ExpressProject/issues"
+  },
+  "homepage": "https://github.com/AtouiIlyes/ExpressProject#readme"
+}
