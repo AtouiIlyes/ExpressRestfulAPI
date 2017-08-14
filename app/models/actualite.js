@@ -9,7 +9,9 @@ var ActualiteSchema   = new Schema({
     title: String,
     textA : String,
     archived : Boolean,
+    featured : Boolean,
     image: String
+    
 });
 
 module.exports = mongoose.model('Actualite', ActualiteSchema);

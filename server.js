@@ -86,6 +86,7 @@ router.route('/actualites')
         actualite.title = req.body.title;  // set the actualite title (comes from the request)
         actualite.textA = req.body.textA;  // set the actualite text (comes from the request)
         actualite.archived = false;
+        actualite.featured = req.body.featured;
         actualite.image = 'http://localhost:8080/assets/photo-'+date+'.'+extension;  // set the actualite image (comes from the request)
         //save the actualite and check for errors
         actualite.save(function (err) {
@@ -174,6 +175,7 @@ router.route('/actualites/:actualite_id')
             actualite.title = req.body.title;  // update the actualites info
             actualite.textA = req.body.textA;  // update the actualites info
             actualite.archived = false;
+            actualite.featured = req.body.featured;
             actualite.image = 'http://localhost:8080/assets/photo-'+date+'.'+extension;  // set the actualite image (comes from the request)
 
             // save the actualite
