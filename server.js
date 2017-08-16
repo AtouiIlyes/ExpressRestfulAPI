@@ -13,6 +13,9 @@ var mongoose = require('mongoose');
 mongoose.connect('mongodb://127.0.0.1/news');
 var conn = mongoose.connection;
 var Actualite = require('./app/models/actualite');
+var Contact = require('./app/models/contact');
+var Page = require('./app/models/page');
+
 
 //require multer for the file uploads
 var multer = require('multer');
@@ -75,6 +78,73 @@ router.get('/', function (req, res) {
 });
 
 // more routes for our API will happen here
+router.route('/pages')
+
+    // create a actualite (accessed at POST http://localhost:8080/api/actualites)
+    .post(function (req, res) {
+        var page = new Page();      // create a new instance of the contact model
+        page.title = req.body.title;  // set the contact title (comes from the request)
+        page.content = req.body.content;  // set the contact text (comes from the request)
+        page.alias = req.body.alias;
+
+
+        //save the contact and check for errors
+        page.save(function (err) {
+            if (err) {
+                console.log(err);
+                res.status(500).send('alias must be unique!');
+                //res.send(err);
+
+            }
+            else{
+            res.json({message: 'Page created!'});
+            }
+        });
+
+    })
+
+    // get all the actualites (accessed at GET http://localhost:8080/api/actualites)
+    .get(function (req, res) {
+        Page.find(function (err, pages) {
+            if (err)
+                return res.send(err);
+
+            res.json(pages);
+        });
+    });
+
+router.route('/contacts')
+
+    // create a actualite (accessed at POST http://localhost:8080/api/actualites)
+    .post(function (req, res) {
+        var contact = new Contact();      // create a new instance of the contact model
+        contact.name = req.body.name;  // set the contact title (comes from the request)
+        contact.email = req.body.email;  // set the contact text (comes from the request)
+        contact.subject = req.body.subject;
+        contact.message = req.body.message;
+        contact.date = Date.now();
+        console.log(req.body.name);
+        //save the contact and check for errors
+        contact.save(function (err) {
+            if (err)
+                res.send(err);
+
+            res.json({message: 'Contact created!'});
+        });
+
+    })
+
+    // get all the actualites (accessed at GET http://localhost:8080/api/actualites)
+    .get(function (req, res) {
+        Contact.find(function (err, contacts) {
+            if (err)
+                return res.send(err);
+
+            res.json(contacts);
+        });
+    });
+
+
 
 // on routes that end in /actualites
 // ----------------------------------------------------
