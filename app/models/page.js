@@ -8,6 +8,7 @@ var PageSchema   = new Schema({
     title: String,
     content : String,
     alias : { type: String, unique: true }
+    
 
 });
 module.exports = mongoose.model('Page', PageSchema);

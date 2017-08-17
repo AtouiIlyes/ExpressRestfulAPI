@@ -15,6 +15,7 @@ var conn = mongoose.connection;
 var Actualite = require('./app/models/actualite');
 var Contact = require('./app/models/contact');
 var Page = require('./app/models/page');
+var Menu = require('./app/models/menu');
 
 
 //require multer for the file uploads
@@ -77,6 +78,115 @@ router.get('/', function (req, res) {
     res.json({message: 'hooray! welcome to our api!'});
 });
 
+router.route('/menus')
+
+    // create a actualite (accessed at POST http://localhost:8080/api/actualites)
+    .post(function (req, res) {
+        console.log(req.body.page);
+        var menu = new Menu();      // create a new instance of the contact model
+        menu.title = req.body.title;  // set the contact title (comes from the request)
+        menu.position = 0;  // set the contact text (comes from the request)
+        menu.page = req.body.page;
+
+
+        //save the contact and check for errors
+        menu.save(function (err) {
+            if (err) {
+                console.log(err);
+                res.send(err);
+
+            }
+            else{
+                res.json({message: 'Menu created!'});
+            }
+        });
+
+    })
+    // get all the actualites (accessed at GET http://localhost:8080/api/actualites)
+    .get(function (req, res) {
+        Menu.find(function (err, pages) {
+            if (err)
+                return res.send(err);
+            else
+                res.json(pages);
+        });
+    });
+router.route('/menus/:menu_id')
+
+    // get the actualite with that id (accessed at GET http://localhost:8080/api/actualites/:actualite_id)
+    .get(function (req, res) {
+        Menu.findById(req.params.menu_id, function (err, menu) {
+            if (err)
+                return res.send(err);
+            res.json(menu);
+        });
+    })
+
+    // update the bear with this id (accessed at PUT http://localhost:8080/api/actualites/:actualite_id)
+    .put(function (req, res) {
+
+        // use our actualite model to find the actualite we want
+        Menu.findById(req.params.menu_id, function (err, menu) {
+            if (err)
+                res.send(err);
+
+            menu.title = req.body.title;  // update the actualites info
+            menu.position = req.body.textA;  // update the actualites info
+            menu.archived = false;
+            menu.page = req.body.page;
+
+            // save the actualite
+            menu.save(function (err) {
+                if (err)
+                    res.send(err);
+
+                res.json({message: 'Menu updated!'});
+            });
+
+        });
+    })
+router.route('/menus/archiver/:id')
+    .put(function (req, res) {
+        console.log(req.params.id);
+        // use our actualite model to find the actualite we want
+        Menu.findById(req.params.id, function (err, menu) {
+            if (err)
+                res.send(err);
+
+
+            menu.archived = true;  // update the actualites info
+
+
+            // save the actualite
+            menu.save(function (err) {
+                if (err)
+                    res.send(err);
+
+                res.json({message: 'Menu archived!'});
+            });
+
+        });
+    })
+
+// more routes for our API will happen here
+router.route('/pageswithoutmenu')
+
+    // get all the actualites (accessed at GET http://localhost:8080/api/actualites)
+    .get(function (req, res) {
+
+
+        Menu.find( {} ,function (err, menus) {
+            var ids = menus.map(function(menu) { return menu.page; });
+            Page.find({_id: {$nin: ids}}, function(err, pages) {
+                if (err)
+                    return res.send(err);
+                else
+                    res.json(pages);
+            });
+        }).select('page');
+    });
+
+
 // more routes for our API will happen here
 router.route('/pages')
 
@@ -108,7 +218,7 @@ router.route('/pages')
         Page.find(function (err, pages) {
             if (err)
                 return res.send(err);
-
+            else
             res.json(pages);
         });
     });
@@ -128,7 +238,7 @@ router.route('/contacts')
         contact.save(function (err) {
             if (err)
                 res.send(err);
-
+            else
             res.json({message: 'Contact created!'});
         });
 
