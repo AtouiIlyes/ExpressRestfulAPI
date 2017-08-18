@@ -20,7 +20,7 @@ var Menu = require('./app/models/menu');
 
 //require multer for the file uploads
 var multer = require('multer');
-var path ;
+var path;
 
 // set the directory for the uploads to the uploaded to
 var DIR = './public/assets';
@@ -30,15 +30,15 @@ var storage = multer.diskStorage({
     },
     filename: function (req, file, cb) {
         console.log(file.mimetype); //Will return something like: image/jpeg
-         extArray = file.mimetype.split("/");
-         extension = extArray[extArray.length - 1];
-         name=file.fieldname;
-        date=Date.now();
-        cb(null, file.fieldname + '-' + date+'.'+extension )
+        extArray = file.mimetype.split("/");
+        extension = extArray[extArray.length - 1];
+        name = file.fieldname;
+        date = Date.now();
+        cb(null, file.fieldname + '-' + date + '.' + extension)
     }
 })
 
-var upload = multer({ storage: storage }).single('photo');
+var upload = multer({storage: storage}).single('photo');
 //define the type of upload multer would be doing and pass in its destination, in our case, its a single file with the name photo
 
 
@@ -85,6 +85,7 @@ router.route('/menus')
         console.log(req.body.page);
         var menu = new Menu();      // create a new instance of the contact model
         menu.title = req.body.title;  // set the contact title (comes from the request)
+        menu.archived = false;
         menu.position = 0;  // set the contact text (comes from the request)
         menu.page = req.body.page;
 
@@ -96,7 +97,7 @@ router.route('/menus')
                 res.send(err);
 
             }
-            else{
+            else {
                 res.json({message: 'Menu created!'});
             }
         });
@@ -118,7 +119,8 @@ router.route('/menus/:menu_id')
         Menu.findById(req.params.menu_id, function (err, menu) {
             if (err)
                 return res.send(err);
-            res.json(menu);
+            else
+                res.json(menu);
         });
     })
 
@@ -129,20 +131,20 @@ router.route('/menus/:menu_id')
         Menu.findById(req.params.menu_id, function (err, menu) {
             if (err)
                 res.send(err);
+            else {
+                menu.title = req.body.title;  // update the actualites info
+                menu.position = req.body.position;  // update the actualites info
+                menu.archived = false;
+                menu.page = req.body.page;
 
-            menu.title = req.body.title;  // update the actualites info
-            menu.position = req.body.textA;  // update the actualites info
-            menu.archived = false;
-            menu.page = req.body.page;
-
-            // save the actualite
-            menu.save(function (err) {
-                if (err)
-                    res.send(err);
-
-                res.json({message: 'Menu updated!'});
-            });
-
+                // save the actualite
+                menu.save(function (err) {
+                    if (err)
+                        res.send(err);
+                    else
+                        res.json({message: 'Menu updated!'});
+                });
+            }
         });
     })
 router.route('/menus/archiver/:id')
@@ -153,8 +155,8 @@ router.route('/menus/archiver/:id')
             if (err)
                 res.send(err);
 
-
-            menu.archived = true;  // update the actualites info
+            else
+                menu.archived = true;  // update the actualites info
 
 
             // save the actualite
@@ -175,9 +177,11 @@ router.route('/pageswithoutmenu')
     .get(function (req, res) {
 
 
-        Menu.find( {} ,function (err, menus) {
-            var ids = menus.map(function(menu) { return menu.page; });
-            Page.find({_id: {$nin: ids}}, function(err, pages) {
+        Menu.find({}, function (err, menus) {
+            var ids = menus.map(function (menu) {
+                return menu.page;
+            });
+            Page.find({_id: {$nin: ids}}, function (err, pages) {
                 if (err)
                     return res.send(err);
                 else
@@ -196,7 +200,7 @@ router.route('/pages')
         page.title = req.body.title;  // set the contact title (comes from the request)
         page.content = req.body.content;  // set the contact text (comes from the request)
         page.alias = req.body.alias;
-
+        page.archived = false;
 
         //save the contact and check for errors
         page.save(function (err) {
@@ -206,8 +210,8 @@ router.route('/pages')
                 //res.send(err);
 
             }
-            else{
-            res.json({message: 'Page created!'});
+            else {
+                res.json({message: 'Page created!'});
             }
         });
 
@@ -219,9 +223,66 @@ router.route('/pages')
             if (err)
                 return res.send(err);
             else
-            res.json(pages);
+                res.json(pages);
         });
     });
+router.route('/pages/:page_id')
+
+    // get the actualite with that id (accessed at GET http://localhost:8080/api/actualites/:actualite_id)
+    .get(function (req, res) {
+        Page.findById(req.params.page_id, function (err, page) {
+            if (err)
+                return res.send(err);
+            else
+                res.json(page);
+        });
+    })
+
+    // update the bear with this id (accessed at PUT http://localhost:8080/api/actualites/:actualite_id)
+    .put(function (req, res) {
+
+        // use our actualite model to find the actualite we want
+        Page.findById(req.params.page_id, function (err, page) {
+            if (err)
+                res.send(err);
+            else {
+                page.title = req.body.title;  // update the actualites info
+                page.alias = req.body.alias;  // update the actualites info
+                page.archived = false;
+                page.content = req.body.content;
+
+                // save the actualite
+                page.save(function (err) {
+                    if (err)
+                        res.status(500).send('alias must be unique!');
+                    else
+                        res.json({message: 'Page updated!'});
+                });
+            }
+        });
+    })
+router.route('/pages/archiver/:id')
+    .put(function (req, res) {
+        console.log(req.params.id);
+        // use our actualite model to find the actualite we want
+        Page.findById(req.params.id, function (err, page) {
+            if (err)
+                res.send(err);
+
+            else
+                page.archived = true;  // update the actualites info
+
+
+            // save the actualite
+            page.save(function (err) {
+                if (err)
+                    res.send(err);
+
+                res.json({message: 'Page archived!'});
+            });
+
+        });
+    })
 
 router.route('/contacts')
 
@@ -239,7 +300,7 @@ router.route('/contacts')
             if (err)
                 res.send(err);
             else
-            res.json({message: 'Contact created!'});
+                res.json({message: 'Contact created!'});
         });
 
     })
@@ -255,7 +316,6 @@ router.route('/contacts')
     });
 
 
-
 // on routes that end in /actualites
 // ----------------------------------------------------
 router.route('/actualites')
@@ -267,7 +327,7 @@ router.route('/actualites')
         actualite.textA = req.body.textA;  // set the actualite text (comes from the request)
         actualite.archived = false;
         actualite.featured = req.body.featured;
-        actualite.image = 'http://localhost:8080/assets/photo-'+date+'.'+extension;  // set the actualite image (comes from the request)
+        actualite.image = 'http://localhost:8080/assets/photo-' + date + '.' + extension;  // set the actualite image (comes from the request)
         //save the actualite and check for errors
         actualite.save(function (err) {
             if (err)
@@ -290,21 +350,21 @@ router.route('/actualites')
 
 //our file upload function.
 router.route('/actualites/upload')
-    .post( function (req, res, next) {
-     path = '';
-    upload(req, res, function (err) {
-        if (err) {
-            // An error occurred when uploading
-            console.log(err);
-            return res.status(422).send("an Error occured")
-        }
-        else {
-            // No error occured.
-            path = req.file.path;
-            return res.send("Upload Completed for " + path);
-        }
-    });
-})
+    .post(function (req, res, next) {
+        path = '';
+        upload(req, res, function (err) {
+            if (err) {
+                // An error occurred when uploading
+                console.log(err);
+                return res.status(422).send("an Error occured")
+            }
+            else {
+                // No error occured.
+                path = req.file.path;
+                return res.send("Upload Completed for " + path);
+            }
+        });
+    })
 
 router.route('/actualites/archiver/:id')
     .put(function (req, res) {
@@ -348,7 +408,7 @@ router.route('/actualites/:actualite_id')
 
         // use our actualite model to find the actualite we want
         Actualite.findById(req.params.actualite_id, function (err, actualite) {
-                console.log(req.params.title);
+            console.log(req.params.title);
             if (err)
                 res.send(err);
 
@@ -356,14 +416,14 @@ router.route('/actualites/:actualite_id')
             actualite.textA = req.body.textA;  // update the actualites info
             actualite.archived = false;
             actualite.featured = req.body.featured;
-            actualite.image = 'http://localhost:8080/assets/photo-'+date+'.'+extension;  // set the actualite image (comes from the request)
+            actualite.image = 'http://localhost:8080/assets/photo-' + date + '.' + extension;  // set the actualite image (comes from the request)
 
             // save the actualite
             actualite.save(function (err) {
                 if (err)
                     res.send(err);
-
-                res.json({message: 'Actualite updated!'});
+                else
+                    res.json({message: 'Actualite updated!'});
             });
 
         });

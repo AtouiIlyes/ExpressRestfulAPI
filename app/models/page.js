@@ -7,8 +7,10 @@ var Schema       = mongoose.Schema;
 var PageSchema   = new Schema({
     title: String,
     content : String,
-    alias : { type: String, unique: true }
-    
+    alias : { type: String, unique: true },
+    archived : Boolean
+
+
 
 });
 module.exports = mongoose.model('Page', PageSchema);
