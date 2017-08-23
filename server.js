@@ -103,6 +103,16 @@ router.route('/menus')
         });
 
     })
+    //update all items  of menus
+    .put(function(req,res){
+
+        req.body.menus.forEach(function(menu) {
+            Menu.update({ _id: menu._id }, { $set: { position: menu.position }}, function() {});
+        });
+        res.json({message: 'Menu updated!'});
+          
+
+    })
     // get all the actualites (accessed at GET http://localhost:8080/api/actualites)
     .get(function (req, res) {
         Menu.find(function (err, pages) {
@@ -110,7 +120,7 @@ router.route('/menus')
                 return res.send(err);
             else
                 res.json(pages);
-        });
+        }).sort([['position', +1]]);
     });
 router.route('/menus/:menu_id')
 
@@ -451,3 +461,4 @@ module.exports = router;
 // =============================================================================
 app.listen(port);
 console.log('Magic happens on port ' + port);
+
