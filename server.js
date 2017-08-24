@@ -78,6 +78,16 @@ router.get('/', function (req, res) {
     res.json({message: 'hooray! welcome to our api!'});
 });
 
+router.route('/menusAlias')
+    .get(function (req, res) {
+        Menu.find(function (err, pages) {
+            if (err)
+                return res.send(err);
+            else
+                res.json(pages);
+        }).populate({ path: 'page', select: 'alias' }).sort([['position', +1]]);
+    });
+
 router.route('/menus')
 
     // create a actualite (accessed at POST http://localhost:8080/api/actualites)
@@ -105,8 +115,8 @@ router.route('/menus')
     })
     //update all items  of menus
     .put(function(req,res){
-
-        req.body.menus.forEach(function(menu) {
+        console.log(req.body);
+        req.body.forEach(function(menu) {
             Menu.update({ _id: menu._id }, { $set: { position: menu.position }}, function() {});
         });
         res.json({message: 'Menu updated!'});
@@ -200,9 +210,24 @@ router.route('/pageswithoutmenu')
         }).select('page');
     });
 
+router.route('/pageOfAlias/:alias')
+    // get all the actualites (accessed at GET http://localhost:8080/api/actualites)
+    .get(function (req, res) {
+        console.log(req.params.alias);
+        Page.findOne({ alias : req.params.alias }, 'content', function (err, page) {
+            if (err)
+                return res.send(err);
+            else
+                res.json(page);
+        });
+    })
 
-// more routes for our API will happen here
+
+
+
+
 router.route('/pages')
+
 
     // create a actualite (accessed at POST http://localhost:8080/api/actualites)
     .post(function (req, res) {
